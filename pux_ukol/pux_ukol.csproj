@@ -13,4 +13,13 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\data\nevim\lol.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\data\nevim\lol2.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\data\" />
+    </ItemGroup>
+
 </Project>
