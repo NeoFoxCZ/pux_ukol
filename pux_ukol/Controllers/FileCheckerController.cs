@@ -4,7 +4,7 @@ using pux_ukol.DAL;
 
 namespace pux_ukol.Controllers;
 
-public class FileViewerController(IMemoryCache cache, ILogger<FileViewerController> logger, IWebHostEnvironment env,
+public class FileCheckerController(IMemoryCache cache, ILogger<FileCheckerController> logger, IWebHostEnvironment env,
     IFileCheckerService service)
     : Controller
 {
@@ -28,12 +28,13 @@ public class FileViewerController(IMemoryCache cache, ILogger<FileViewerControll
         
         // Received list of files from cache
         var oldFileData =
-            cache.Get<Dictionary<string, (int? version, DateTime lastModified)>>("FileList") ??
+            cache.Get<Dictionary<string, (int? version, DateTime lastModified)>>(Const.CacheKey) ??
             new Dictionary<string, (int? version, DateTime lastModified)>();
         
-        #region Check Rules
-
-        service.CheckNumberOfFilesPerFolder(dataFolderPath);
+        #region Check Rules via Service
+        
+        var checkNumberOfFilesPerFolderResponse = service.CheckNumberOfFilesPerFolder(dataFolderPath);
+        if (checkNumberOfFilesPerFolderResponse != null) return checkNumberOfFilesPerFolderResponse;
         
         var checkFilesSizeResponse = service.CheckFilesSize(dataFolderPath);
         if (checkFilesSizeResponse != null) return checkFilesSizeResponse;
@@ -82,12 +83,12 @@ public class FileViewerController(IMemoryCache cache, ILogger<FileViewerControll
         if (editedFiles.Count != 0) editedFiles.ForEach(f => logMessages.Add($"[M] {f}"));
         if (addedFiles.Count != 0) addedFiles.ForEach(f => logMessages.Add($"[A] {f}"));
         if (removedFiles.Count != 0) removedFiles.ForEach(f => logMessages.Add($"[R] {f}"));
-        if (addedFiles.Count == 0 && removedFiles.Count == 0 && editedFiles.Count == 0) logMessages.Add("Žádné změny.");
+        if (addedFiles.Count == 0 && removedFiles.Count == 0 && editedFiles.Count == 0) logMessages.Add("Žádné změny v adresářích.");
 
         // Update cache to the current state of files
-        cache.Set("FileList", newFileData);
+        cache.Set(Const.CacheKey, newFileData);
 
-        logger.LogInformation("Kontrola změn v adresáři dokončena.");
+        logger.LogInformation("CheckFileChanges method finished.");
         return Json(new { messages = logMessages });
     }
 }

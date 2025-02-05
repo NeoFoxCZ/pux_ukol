@@ -1,8 +1,18 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "File Watcher";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>Sledování souborů</h2>
+
+<input type="text" id="path" value="~/data">
+<button id="checkChanges">Zkontrolovat změny</button>
+<div id="log"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#checkChanges").click(function () {
+        $.post("/FileChecker/CheckFileChanges?dataFolderPath=" + $("#path").val() , function (data) {
+            $("#log").html(data.messages.join("<br>"));
+        });
+    });
+</script>
